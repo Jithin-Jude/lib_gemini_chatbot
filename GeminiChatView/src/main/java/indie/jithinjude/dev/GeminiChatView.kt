@@ -1,6 +1,5 @@
 package indie.jithinjude.dev
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -45,11 +44,11 @@ fun GeminiChatView(apiKey: String) {
         apiKey = apiKey
     )
     val chat = generativeModel.startChat()
-    Box(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = 80.dp),
+                .fillMaxWidth()
+                .weight(1f),
             state = lazyColumnListState
         ) {
             items(chatDataList.value) { chat ->
@@ -64,8 +63,7 @@ fun GeminiChatView(apiKey: String) {
         }
         RoundedCornerTextFieldWithSend(
             modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter),
+                .fillMaxWidth(),
             onSendClick = {
                 coroutineScope.launch {
                     chatDataList.value += listOf(ChatMember(MemberType.USER, it))
@@ -101,6 +99,7 @@ fun RoundedCornerTextFieldWithSend(
             value = textState.value,
             onValueChange = { textState.value = it },
             label = { Text("Let's chat") },
+            maxLines = 6,
             modifier = Modifier
                 .weight(1f)
                 .focusRequester(focusRequester), // Make text field occupy most space
