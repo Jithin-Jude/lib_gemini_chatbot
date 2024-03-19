@@ -18,26 +18,29 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 
 @Composable
-fun GeminiChatView(){
+fun GeminiChatView(apiKey: String){
     val chatDataList = remember { mutableStateOf(listOf<ChatMember>()) }
 
     val generativeModel = GenerativeModel(
-        // For text-only input, use the gemini-pro model
         modelName = "gemini-pro",
-        // Access your API key as a Build Configuration variable (see "Set up your API key" above)
-        apiKey = BuildConfig.apiKey
+        apiKey = apiKey
     )
     val chat = generativeModel.startChat()
 
@@ -69,19 +72,23 @@ fun RoundedCornerTextFieldWithSend(
     modifier: Modifier = Modifier,
     onSendClick: (String) -> Unit // Callback for send button click
 ) {
+    val focusRequester = remember { FocusRequester() }
     val textState = remember { mutableStateOf("") }
 
-    Row(modifier = modifier.padding(16.dp)) {
+    Row(modifier = modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
         OutlinedTextField(
             value = textState.value,
             onValueChange = { textState.value = it },
             label = { Text("Let's chat") },
-            modifier = Modifier.weight(1f), // Make text field occupy most space
+            modifier = Modifier.weight(1f).focusRequester(focusRequester), // Make text field occupy most space
             shape = RoundedCornerShape(12.dp)
         )
         Spacer(modifier = Modifier.width(8.dp)) // Add some spacing between text field and button
         Button(
-            onClick = { onSendClick(textState.value) },
+            onClick = {
+                onSendClick(textState.value)
+                textState.value = ""
+                      },
             shape = RoundedCornerShape(12.dp) // Maintain consistent corner radius
         ) {
             Icon(
@@ -89,6 +96,9 @@ fun RoundedCornerTextFieldWithSend(
                 contentDescription = "Send"
             )
         }
+    }
+    LaunchedEffect(focusRequester) {
+        focusRequester.requestFocus()
     }
 }
 

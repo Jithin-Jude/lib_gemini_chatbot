@@ -2,6 +2,7 @@ package indie.jithinjude.dvlpr
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import indie.jithinjude.dev.BuildConfig
 import indie.jithinjude.dev.GeminiChatView
 import indie.jithinjude.dvlpr.databinding.ActivityMainBinding
 
@@ -16,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.composeView.setContent {
-            GeminiChatView()
+            GeminiChatView(apiKey = BuildConfig.apiKey)
         }
     }
 }
