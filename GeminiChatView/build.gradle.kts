@@ -68,7 +68,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "com.github.Jithin-Jude"
             artifactId = "lib_gemini_chatbot"
-            version = "1.0.7"
+            version = "1.0.8"
 
             afterEvaluate {
                 from(components["release"])
