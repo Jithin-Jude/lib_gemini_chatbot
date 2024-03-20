@@ -3,8 +3,5 @@
     <style name="Base.Theme.GeminiChatbot" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <item name="colorPrimary">@color/grey</item>
-        <item name="colorAccent">@color/grey</item>
-        <item name="colorButtonNormal">@color/grey</item>
-        <item name="colorBackgroundFloating">@color/grey</item>
     </style>
 </resources>

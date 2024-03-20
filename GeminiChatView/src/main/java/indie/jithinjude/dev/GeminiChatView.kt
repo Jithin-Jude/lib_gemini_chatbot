@@ -37,10 +37,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.Content
+import com.google.ai.client.generativeai.type.TextPart
 import kotlinx.coroutines.launch
 
 @Composable
-fun GeminiChatView(apiKey: String) {
+fun GeminiChatView(
+    apiKey: String,
+    appThemColor: Color = Color.Gray,
+    chatContext: List<GeminiContent> = emptyList()
+) {
     val lazyColumnListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val isLoading = remember { mutableStateOf(false) }
@@ -50,7 +56,9 @@ fun GeminiChatView(apiKey: String) {
         modelName = "gemini-pro",
         apiKey = apiKey
     )
-    val chat = generativeModel.startChat()
+    val chat = generativeModel.startChat(history = chatContext.map {
+        Content(role = it.roll, parts = listOf(TextPart(text = it.text)))
+    })
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -99,7 +107,8 @@ fun GeminiChatView(apiKey: String) {
                     }
                 }
             },
-            isLoading.value
+            isLoading.value,
+            appThemColor
         )
     }
 }
@@ -108,7 +117,8 @@ fun GeminiChatView(apiKey: String) {
 fun RoundedCornerTextFieldWithSend(
     modifier: Modifier = Modifier,
     onSendClick: (String) -> Unit, // Callback for send button click
-    isLoading: Boolean
+    isLoading: Boolean,
+    appThemColor: Color
 ) {
     val focusRequester = remember { FocusRequester() }
     val textState = remember { mutableStateOf("") }
@@ -124,11 +134,11 @@ fun RoundedCornerTextFieldWithSend(
                 .focusRequester(focusRequester),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Gray,
-                focusedLabelColor = Color.Gray,
-                unfocusedBorderColor = Color.Gray,
-                unfocusedLabelColor = Color.Gray,
-                cursorColor = Color.Gray
+                focusedBorderColor = appThemColor,
+                focusedLabelColor = appThemColor,
+                unfocusedBorderColor = appThemColor,
+                unfocusedLabelColor = appThemColor,
+                cursorColor = appThemColor
             )
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -136,7 +146,7 @@ fun RoundedCornerTextFieldWithSend(
             CircularProgressIndicator(
                 modifier = Modifier.size(36.dp),
                 strokeWidth = 4.dp,
-                color = Color.Gray,
+                color = appThemColor,
             )
         } else {
             Button(
@@ -149,7 +159,7 @@ fun RoundedCornerTextFieldWithSend(
                 },
                 shape = RoundedCornerShape(100.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Gray
+                    containerColor = appThemColor
                 )
             ) {
                 Icon(
@@ -164,5 +174,6 @@ fun RoundedCornerTextFieldWithSend(
     }
 }
 
+data class GeminiContent(var roll: String, var text: String)
 data class ChatMember(var memberType: MemberType, var text: String)
 enum class MemberType {BOT, USER}
