@@ -2,6 +2,7 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("maven-publish")
 }
 
 android {
@@ -61,4 +62,17 @@ dependencies {
 
     // Gemini
     implementation("com.google.ai.client.generativeai:generativeai:0.2.2")
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("maven") {
+                groupId = "indie.jithinjude.dev"
+                artifactId = "gemini-chat-view"
+                version = "1.0.0"
+                from(components["release"])
+            }
+        }
+    }
 }
