@@ -3,6 +3,7 @@ package indie.jithinjude.dvlpr
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.res.colorResource
+import indie.jithinjude.dev.BuildConfig
 import indie.jithinjude.dev.GeminiChatView
 import indie.jithinjude.dev.GeminiContent
 import indie.jithinjude.dvlpr.databinding.ActivityMainBinding
@@ -19,7 +20,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.composeView.setContent {
             GeminiChatView(
-                apiKey = "",
+                apiKey = BuildConfig.geminiApiKey,
                 appThemColor = colorResource(R.color.grey),
                 chatContext = listOf(
                     GeminiContent(
