@@ -63,14 +63,14 @@ dependencies {
     // Gemini
     implementation("com.google.ai.client.generativeai:generativeai:0.2.2")
 }
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            groupId = "indie.jithinjude.dev"
+            artifactId = "gemini-chat-view"
+            version = "1.0.0"
 
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("maven") {
-                groupId = "indie.jithinjude.dev"
-                artifactId = "gemini-chat-view"
-                version = "1.0.0"
+            afterEvaluate {
                 from(components["release"])
             }
         }
