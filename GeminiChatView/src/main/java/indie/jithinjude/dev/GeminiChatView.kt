@@ -15,9 +15,14 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.ai.client.generativeai.GenerativeModel
@@ -37,6 +43,7 @@ import kotlinx.coroutines.launch
 fun GeminiChatView(apiKey: String) {
     val lazyColumnListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val isLoading = remember { mutableStateOf(false) }
     val chatDataList = remember { mutableStateOf(listOf<ChatMember>()) }
 
     val generativeModel = GenerativeModel(
@@ -57,7 +64,14 @@ fun GeminiChatView(apiKey: String) {
                         .fillMaxWidth()
                         .padding(20.dp)
                 ) {
-                    Text(text = chat.text, fontSize = 20.sp)
+                    Row(verticalAlignment = Alignment.Top) {
+                        Icon(
+                            imageVector = if (chat.memberType == MemberType.BOT) Icons.Rounded.Face else Icons.Rounded.AccountCircle,
+                            contentDescription = "Send"
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = chat.text, fontSize = 20.sp)
+                    }
                 }
             }
         }
@@ -68,6 +82,7 @@ fun GeminiChatView(apiKey: String) {
                 coroutineScope.launch {
                     chatDataList.value += listOf(ChatMember(MemberType.USER, it))
                     lazyColumnListState.animateScrollToItem(chatDataList.value.size - 1)
+                    isLoading.value = true
                     try {
                         val response = chat.sendMessage(it)
                         chatDataList.value += listOf(
@@ -77,11 +92,14 @@ fun GeminiChatView(apiKey: String) {
                             )
                         )
                         lazyColumnListState.animateScrollToItem(chatDataList.value.size - 1)
+                        isLoading.value = false
                     } catch (ex: Exception) {
+                        isLoading.value = false
                         ex.printStackTrace()
                     }
                 }
-            }
+            },
+            isLoading.value
         )
     }
 }
@@ -89,7 +107,8 @@ fun GeminiChatView(apiKey: String) {
 @Composable
 fun RoundedCornerTextFieldWithSend(
     modifier: Modifier = Modifier,
-    onSendClick: (String) -> Unit // Callback for send button click
+    onSendClick: (String) -> Unit, // Callback for send button click
+    isLoading: Boolean
 ) {
     val focusRequester = remember { FocusRequester() }
     val textState = remember { mutableStateOf("") }
@@ -102,23 +121,42 @@ fun RoundedCornerTextFieldWithSend(
             maxLines = 6,
             modifier = Modifier
                 .weight(1f)
-                .focusRequester(focusRequester), // Make text field occupy most space
-            shape = RoundedCornerShape(12.dp)
-        )
-        Spacer(modifier = Modifier.width(8.dp)) // Add some spacing between text field and button
-        Button(
-            modifier = Modifier.size(50.dp),
-            contentPadding = PaddingValues(0.dp),
-            onClick = {
-                onSendClick(textState.value)
-                textState.value = ""
-            },
-            shape = RoundedCornerShape(100.dp) // Maintain consistent corner radius
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.Send, // Replace with your send icon
-                contentDescription = "Send"
+                .focusRequester(focusRequester),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Gray,
+                focusedLabelColor = Color.Gray,
+                unfocusedBorderColor = Color.Gray,
+                unfocusedLabelColor = Color.Gray,
+                cursorColor = Color.Gray
             )
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(36.dp),
+                strokeWidth = 4.dp,
+                color = Color.Gray,
+            )
+        } else {
+            Button(
+                modifier = Modifier.size(50.dp),
+                contentPadding = PaddingValues(0.dp),
+                enabled = textState.value.isNotBlank(),
+                onClick = {
+                    onSendClick(textState.value)
+                    textState.value = ""
+                },
+                shape = RoundedCornerShape(100.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Gray
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = "Send"
+                )
+            }
         }
     }
     LaunchedEffect(focusRequester) {
