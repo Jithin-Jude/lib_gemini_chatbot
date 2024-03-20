@@ -28,7 +28,7 @@ dependencyResolutionManagement {
 add inside `build.gradle` [app level]
 ```
 dependencies {
-	implementation 'com.github.Jithin-Jude:lib_gemini_chatbot:1.0.8'
+	implementation("com.github.Jithin-Jude:lib_gemini_chatbot:1.0.8")
 }
 ```
 ```
