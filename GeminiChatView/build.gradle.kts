@@ -66,8 +66,8 @@ dependencies {
 publishing {
     publications {
         register<MavenPublication>("release") {
-            groupId = "indie.jithinjude.dev"
-            artifactId = "gemini-chat-view"
+            groupId = "com.github.Jithin-Jude"
+            artifactId = "lib_gemini_chatbot"
             version = "1.0.0"
 
             afterEvaluate {
